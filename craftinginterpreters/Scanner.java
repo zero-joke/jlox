@@ -72,14 +72,7 @@ public class Scanner {
             case '=': addToken(match('=') ? EQUAL_EQUAL : EQUAL); break;
             case '<': addToken(match('=') ? LESS_EQUAL : LESS); break;
             case '>': addToken(match('=') ? GREATER_EQUAL : GREATER); break;
-            case '/':
-                if(match('/')) {
-                    // A comment goes until the end of the line.
-                    while(peek() != '\n' && !isAtEnd()) advance();
-                } else {
-                    addToken(SLASH);
-                }
-                break;
+            case '/': handleSlash(); break;
             case ' ':
             case '\r':
             case '\t':
@@ -94,7 +87,7 @@ public class Scanner {
                     number();
                 } else if(isAlpha(c)) {
                     identifier();
-                }else {
+                } else {
                     Lox.error(line, "Unexpected character.");
                 }
                 break;
@@ -185,5 +178,39 @@ public class Scanner {
 
     private boolean isAlphaNumeric(char c) {
         return isAlpha(c) || isDigit(c);
+    }
+
+    private void handleSlash() {
+        if(match('/')) {
+            // A comment goes until the end of the line.
+            while(peek() != '\n' && !isAtEnd()) advance();
+            addToken(COMMENT);
+        } else if(match('*')) {
+            multComment();
+            addToken(COMMENT);
+        } else {
+            addToken(SLASH);
+        }
+    }
+
+    private void multComment() {
+        while(true) {
+            if(current >= source.length() || current+1 >= source.length()) {
+                Lox.error(line, "Unterminated string.");
+                return;
+            }
+            if(source.charAt(current) == '*' && source.charAt(current+1) == '/') {
+                current +=2;
+                break;
+            }
+            if(source.charAt(current) == '/' && source.charAt(current+1) == '*') {
+                current += 2;
+                multComment();
+            }
+            if(source.charAt(current) == '\n') {
+                line++;
+            }
+            current++;
+        }
     }
 }
