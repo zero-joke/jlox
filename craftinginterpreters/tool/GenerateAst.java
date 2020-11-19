@@ -15,9 +15,10 @@ public class GenerateAst {
             "Binary     : Expr left, Token operator, Expr right",
             "Grouping   : Expr expression", 
             "Literal    : Object value",
-            "Unary      : Token operator, Expr right"));
+            "Unary      : Token operator, Expr right",
+            "Trinomial  : Expr condition, Token operator1, Expr expr1, Token operator2, Expr expr2"));
     }
-
+    
     private static void defineAst(String outputDir, String baseName, List<String> types) throws IOException {
         String path = outputDir + "\\" + baseName + ".java";
         PrintWriter writer = new PrintWriter(path, "UTF-8");
@@ -40,6 +41,7 @@ public class GenerateAst {
 
         // The base accept() method.
         writer.println();
+        writer.println(" boolean endWithSemi = false;");
         writer.println(" abstract <R> R accept(Visitor<R> visitor);");
 
         writer.println("}");

@@ -1,5 +1,8 @@
 package craftinginterpreters.lox;
 
+import java.util.List;
+import craftinginterpreters.lox.Token;
+
 abstract class Expr {
     interface Visitor<R> {
         R visitBinaryExpr(Binary expr);
@@ -9,6 +12,8 @@ abstract class Expr {
         R visitLiteralExpr(Literal expr);
 
         R visitUnaryExpr(Unary expr);
+
+        R visitTrinomialExpr(Trinomial expr);
     }
 
     static class Binary extends Expr {
@@ -68,6 +73,29 @@ abstract class Expr {
         final Token operator;
         final Expr right;
     }
+
+    static class Trinomial extends Expr {
+        Trinomial(Expr condition, Token operator1, Expr expr1, Token operator2, Expr expr2) {
+            this.condition = condition;
+            this.operator1 = operator1;
+            this.expr1 = expr1;
+            this.operator2 = operator2;
+            this.expr2 = expr2;
+        }
+
+        @Override
+        <R> R accept(Visitor<R> visitor) {
+            return visitor.visitTrinomialExpr(this);
+        }
+
+        final Expr condition;
+        final Token operator1;
+        final Expr expr1;
+        final Token operator2;
+        final Expr expr2;
+    }
+
+    boolean endWithSemi = false;
 
     abstract <R> R accept(Visitor<R> visitor);
 }
